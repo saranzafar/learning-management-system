@@ -11,7 +11,6 @@ const registerAdmin = asyncHandler(async (req, res) => {
 
     const existingAdmin = await Admin.findOne({ email });
     if (existingAdmin) {
-        console.log("Existing");
         return res.status(409).json(new ApiResponse(409, "Email already in use", {}));
         // res.status(410).send({ error: "Email already in use" })
 
@@ -24,25 +23,23 @@ const registerAdmin = asyncHandler(async (req, res) => {
     });
 
     await admin.save();
-    console.log("SAVED");
     return res.status(201).json(new ApiResponse(201, "Admin registered successfully", { admin }));
 });
 
 const loginAdmin = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-    console.log("LOGIN", email, password);
     if (!email || !password) {
         return res.status(400).json(new ApiResponse(400, "Please provide all required fields"));
     }
 
     const admin = await Admin.findOne({ email });
     if (!admin) {
-        return res.status(401).json(new ApiResponse(401, "Invalid email or password"));
+        return res.status(401).json(new ApiResponse(401, "Invalid email"));
     }
 
     const isPasswordCorrect = await admin.isPasswordCorrect(password);
     if (!isPasswordCorrect) {
-        return res.status(401).json(new ApiResponse(401, "Invalid email or password"));
+        return res.status(401).json(new ApiResponse(401, "Invalid password"));
     }
 
     const token = jwt.sign({ _id: admin._id, email: admin.email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
