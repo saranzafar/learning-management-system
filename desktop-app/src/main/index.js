@@ -1,15 +1,60 @@
-import { app, shell, BrowserWindow, Menu } from 'electron';
+import { app, shell, BrowserWindow, Menu, ipcMain } from 'electron';
 import { join } from 'path';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
 import icon from '../../resources/icon.png?asset';
+import crypto from 'crypto';
+
+let Store;
+
+async function loadStoreModule() {
+  Store = (await import('electron-store')).default;
+  initStore();
+}
+
+let store;
+
+function initStore() {
+  store = new Store();
+}
+
+function encrypt(text) {
+  const cipher = crypto.createCipher('aes-256-cbc', 'your-encryption-key');
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return encrypted;
+}
+
+function decrypt(text) {
+  const decipher = crypto.createDecipher('aes-256-cbc', 'your-encryption-key');
+  let decrypted = decipher.update(text, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted;
+}
+
+function saveUserData(userData) {
+  const encryptedData = encrypt(JSON.stringify(userData));
+  store.set('userData', encryptedData);
+}
+
+function getUserData() {
+  const encryptedData = store.get('userData');
+  if (encryptedData) {
+    return JSON.parse(decrypt(encryptedData));
+  }
+  return null;
+}
+
+
+function deleteUserData() {
+  store.delete('token');
+}
 
 function createWindow() {
-  // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
-    autoHideMenuBar: false,  // Ensure the menu bar is visible
+    autoHideMenuBar: false,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -26,15 +71,12 @@ function createWindow() {
     return { action: 'deny' };
   });
 
-  // HMR for renderer based on electron-vite cli.
-  // Load the remote URL for development or the local HTML file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
   }
 
-  // Create the application menu
   const menuTemplate = [
     {
       label: 'File',
@@ -42,30 +84,22 @@ function createWindow() {
         {
           label: 'New',
           accelerator: 'CmdOrCtrl+N',
-          click: () => {
-            // Add functionality for creating a new file or entry
-          }
+          click: () => { }
         },
         {
           label: 'Open',
           accelerator: 'CmdOrCtrl+O',
-          click: () => {
-            // Add functionality for opening a file or entry
-          }
+          click: () => { }
         },
         {
           label: 'Save',
           accelerator: 'CmdOrCtrl+S',
-          click: () => {
-            // Add functionality for saving the current file or entry
-          }
+          click: () => { }
         },
         {
           label: 'Save As',
           accelerator: 'CmdOrCtrl+Shift+S',
-          click: () => {
-            // Add functionality for saving the current file or entry under a new name
-          }
+          click: () => { }
         },
         {
           type: 'separator'
@@ -152,16 +186,12 @@ function createWindow() {
         {
           label: 'Documentation',
           click: () => {
-            // Open documentation or help page
             shell.openExternal('https://your-app-docs-url.com');
           }
         },
         {
           label: 'About',
-          click: () => {
-            // Show the "About" window or dialog
-            // You can create a new window or show a dialog with information about the app
-          }
+          click: () => { }
         }
       ]
     }
@@ -171,16 +201,11 @@ function createWindow() {
   Menu.setApplicationMenu(menu);
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
-  // Set app user model id for windows
+app.whenReady().then(async () => {
+  await loadStoreModule();
+
   electronApp.setAppUserModelId('com.electron');
 
-  // Default open or close DevTools by F12 in development
-  // and ignore CommandOrControl + R in production.
-  // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window);
   });
@@ -188,17 +213,24 @@ app.whenReady().then(() => {
   createWindow();
 
   app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+ipcMain.handle('save-user-data', (_, userData) => {
+  saveUserData(userData);
+});
+
+ipcMain.handle('get-user-data', () => {
+  return getUserData();
+});
+
+ipcMain.handle('delete-user-data', () => {
+  deleteUserData();
 });

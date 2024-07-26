@@ -28,8 +28,9 @@ function SignIn() {
 
         await axios.post(`${conf.backendUrl}admin/login-admin`, formData)
             .then((response) => {
+                console.log("response = ", response.data);
+                window.electronAPI.saveUserData(response.data?.data);
                 navigate("/home"); // redirection
-                console.log("response = ", response);
                 setButtonLoading(false);
             })
             .catch((err) => {
@@ -87,6 +88,7 @@ function SignIn() {
                                         placeholder="Email"
                                         id="email"
                                         required
+                                        list="emailSuggestions"
                                         value={formData.email}
                                         onChange={(e) => handleChange('email', e.target.value)}
                                     />
