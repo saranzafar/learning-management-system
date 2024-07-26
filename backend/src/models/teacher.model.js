@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 
 const teacherSchema = new Schema({
     name: {
@@ -10,8 +10,7 @@ const teacherSchema = new Schema({
     email: {
         type: String,
         unique: true,
-        required: true,
-        match: [/\S+@\S+\.\S+/, 'is invalid']
+        required: true
     },
     password: {
         type: String,
@@ -33,11 +32,14 @@ const teacherSchema = new Schema({
     },
 }, { timestamps: true });
 
-// Hash the password before saving the document
-teacherSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
+teacherSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) return next();
     this.password = await bcrypt.hash(this.password, 10);
     next();
 });
+
+teacherSchema.methods.isPasswordCorrect = async function (password) {
+    return bcrypt.compare(password, this.password);
+};
 
 export const Teacher = mongoose.model('Teacher', teacherSchema);

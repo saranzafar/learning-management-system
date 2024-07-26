@@ -14,11 +14,15 @@ app.use(urlencoded({ extended: true, limit: "16kb" }))
 app.use(express.static("public"))
 
 // importing routes
-import studentRoutes from "./routes/student.routes.js"
+import adminRoutes from "./routes/admin.routes.js"
+import teacherRoutes from "./routes/teacher.routes.js"
+import subjectRoutes from "./routes/subject.routes.js"
 
 // routes declaration 
-app.use("/users", studentRoutes)
+app.use("/admin", adminRoutes)
+app.use("/teacher", teacherRoutes)
+app.use("/subject", subjectRoutes)
 
-// http://localhost:8000/users/register-student
+// http://localhost:8000/admin/register-student
 
 export { app }

@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { User } from "../models/user.model.js";
+import {Admin} from "../models/admin.model.js"
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
@@ -12,7 +12,7 @@ export const verifyJwt = asyncHandler(async (req, res, next) => {
         }
 
         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        const user = await User.findById(decodedToken?._id).select("-password -refreshToken");
+        const user = await Admin.findById(decodedToken?._id).select("-password -refreshToken");
 
         if (!user) {
             return res.status(401).json(new ApiResponse(401, "Unauthorized access", "Invalid Access Token"));

@@ -8,6 +8,10 @@ const subjectSchema = new Schema({
     teacher: {
         type: mongoose.Types.ObjectId,
         ref: "Teacher",
+    },
+    grade: {
+        type: mongoose.Types.ObjectId,
+        ref: "Grade",
     }
 }, { timestamps: true });
 
