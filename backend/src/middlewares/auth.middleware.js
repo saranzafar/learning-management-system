@@ -1,12 +1,11 @@
 import jwt from "jsonwebtoken";
-import {Admin} from "../models/admin.model.js"
+import { Admin } from "../models/admin.model.js"
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
 export const verifyJwt = asyncHandler(async (req, res, next) => {
     try {
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
-
         if (!token) {
             return res.status(401).json(new ApiResponse(401, "Unauthorized access", "No token provided"));
         }
