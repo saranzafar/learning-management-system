@@ -7,12 +7,13 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function Teacher() {
+
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [formData, setFormData] = useState({ name: '', email: '', password: '', gender: '', address: '', phoneNumber: '' });
     const [teacherData, setTeacherData] = useState([]);
     const [buttonLoading, setButtonLoading] = useState(false);
     const [teacherLoading, setTeachersLoading] = useState(false);
-
+    const [deleteLoading, setDeleteLoading] = useState({});
 
     const handleChange = (field, value) => {
         setFormData({ ...formData, [field]: value });
@@ -61,12 +62,9 @@ function Teacher() {
         }).then((response) => {
             console.log("response = ", response?.data?.data?.teachers);
             setTeacherData(response?.data?.data?.teachers);
-            toast.success(`${response?.data?.message}`, {
-                position: "bottom-right",
-                autoClose: 2000,
-            });
             setTeachersLoading(false);
         }).catch((err) => {
+            setTeacherData([])
             toast.error(`Error: ${err?.response?.data?.message}`, {
                 position: "bottom-right",
                 autoClose: 2000,
@@ -74,6 +72,27 @@ function Teacher() {
             setTeachersLoading(false);
         })
     }
+    const deleteTeacher = async (id) => {
+        setDeleteLoading((prev) => ({ ...prev, [id]: true }));
+        const token = await window.electronAPI.getUserData();
+        await axios.delete(`${conf.backendUrl}teacher/delete-teacher/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token?.token}`
+            }
+        }).then((response) => {
+            console.log("response = ", response?.data?.data?.teachers);
+            setDeleteLoading((prev) => ({ ...prev, [id]: false }));
+            getAllTeachers()
+        }).catch((err) => {
+            console.log("Error: ", err);
+            toast.error(`Error: ${err}`, {
+                position: "bottom-right",
+                autoClose: 2000,
+            });
+            setDeleteLoading((prev) => ({ ...prev, [id]: false }));
+        })
+    }
+
 
     return (
         <section>
@@ -204,20 +223,19 @@ function Teacher() {
                                     />
                                 </div>
                             </div>
-                            <div>
+                            <div className='w-full flex justify-end'>
                                 <button
                                     type="submit"
-                                    className="inline-flex w-full items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
-                                    disabled={buttonLoading}
-                                >
-                                    {buttonLoading ? 'Please wait...' : 'Add teacher'} <ArrowRight className="ml-2" size={16} />
+                                    className="inline-flex w-44 items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
+                                    disabled={buttonLoading}>
+                                    {buttonLoading ? 'Please wait...' : 'Add teacher'}
                                 </button>
                             </div>
                         </div>
                     </form>
 
                     {/* all teachers  */}
-                    <form className="mt-8 border-b-2 pb-16" onSubmit={handleSubmit}>
+                    <form className="mt-8 border-b-2 pb-16 w-2/3 mx-auto" onSubmit={handleSubmit}>
                         <div className="space-y-5">
                             <div>
                                 <h2 className="text-center text-2xl font-bold leading-tight text-gray-800">
@@ -226,21 +244,18 @@ function Teacher() {
                                 <p className="mt-2 text-center text-sm text-gray-600">
                                     All registered teachers will be listed here.
                                 </p>
-                                {
-                                    !teacherData.length &&
-                                    <div
-                                        className='w-full mx-auto flex justify-center items-center'>
+                                {!teacherData.length &&
+                                    <div className='w-full mx-auto flex justify-center items-center'>
                                         <button
                                             type="button"
                                             onClick={getAllTeachers}
-                                            className="inline-flex justify-center rounded-md px-3.5 mt-4 py-2.5 font-semibold leading-7 border border-black hover:bg-black/10 w-2/3"
+                                            className="inline-flex justify-center items-center px-3.5 mt-4 py-2.5 font-semibold leading-7 underline hover:text-gray-600"
                                             disabled={buttonLoading}>
-                                            {teacherLoading ? ' wait...' : 'Show teachers'} <ArrowRight className="ml-2" size={16} />
+                                            {teacherLoading ? ' wait...' : 'Click to load teachers'}
                                         </button>
                                     </div>
                                 }
-
-                                {teacherData.length &&
+                                {teacherData.length > 0 ? (
                                     <section className="mx-auto w-full max-w-7xl px-4 py-4">
                                         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
                                             <div>
@@ -252,9 +267,10 @@ function Teacher() {
                                             <div>
                                                 <button
                                                     type="button"
+                                                    onClick={getAllTeachers}
                                                     className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
                                                 >
-                                                    Add new employee
+                                                    Refresh
                                                 </button>
                                             </div>
                                         </div>
@@ -314,9 +330,12 @@ function Teacher() {
                                                                         </td>
                                                                         <td className="whitespace-nowrap px-4 py-4 text-right text-sm font-medium">
                                                                             <button
-                                                                            type='button'
-                                                                            className="text-red-600 hover:text-red-700 hover:bg-red-100 px-4 py-2 rounded">
-                                                                                Delete
+                                                                                type="button"
+                                                                                className="text-red-600 hover:text-red-900"
+                                                                                onClick={() => deleteTeacher(teacher._id)}
+                                                                                disabled={deleteLoading[teacher._id]}
+                                                                            >
+                                                                                {deleteLoading[teacher._id] ? 'Deleting...' : 'Delete'}
                                                                             </button>
                                                                         </td>
                                                                     </tr>
@@ -328,14 +347,20 @@ function Teacher() {
                                             </div>
                                         </div>
                                     </section>
-                                }
+                                ) : (
+                                    <div className="w-full mx-auto flex justify-center items-center my-10 py-10">
+                                        <p className="text-center text-sm text-gray-600">
+                                            Please reload or register a teacher.
+                                        </p>
+                                    </div>
+                                )}
 
                             </div>
                         </div>
                     </form>
-                </div>
-            </div>
-        </section>
+                </div >
+            </div >
+        </section >
     );
 }
 

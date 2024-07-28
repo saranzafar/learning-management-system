@@ -43,14 +43,14 @@ function getUserData() {
   }
   return null;
 }
-
-
 function deleteUserData() {
   store.delete('token');
 }
 
+let mainWindow;
+
 function createWindow() {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
@@ -233,4 +233,8 @@ ipcMain.handle('get-user-data', () => {
 
 ipcMain.handle('delete-user-data', () => {
   deleteUserData();
+});
+
+ipcMain.handle('reload-window', () => {
+  mainWindow.reload();
 });

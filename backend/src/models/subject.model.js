@@ -10,8 +10,9 @@ const subjectSchema = new Schema({
         ref: "Teacher",
     },
     grade: {
-        type: mongoose.Types.ObjectId,
-        ref: "Grade",
+        type: String,
+        require: true,
+        enum: ["Grade-1", "Grade-2", "Grade-3", "Grade-4", "Grade-5", "Grade-6", "Grade-7", "Grade-8"],
     }
 }, { timestamps: true });
 

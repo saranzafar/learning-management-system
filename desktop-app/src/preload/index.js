@@ -22,5 +22,8 @@ if (process.contextIsolated) {
 contextBridge.exposeInMainWorld('electronAPI', {
   saveUserData: (userData) => ipcRenderer.invoke('save-user-data', userData),
   getUserData: () => ipcRenderer.invoke('get-user-data'),
-  deleteUserData: () => ipcRenderer.invoke('delete-user-data')
+  deleteUserData: () => ipcRenderer.invoke('delete-user-data'),
+  reloadWindow: () => ipcRenderer.invoke('reload-window')
 });
+
+

@@ -11,6 +11,6 @@ router.use(verifyJwt)
 
 router.post("/register-teacher", registerTeacher);
 router.get("/get-all-teachers", getAllTeachers);
-router.param("/delete-teacher/:id", deleteTeacher);
+router.delete("/delete-teacher/:id", deleteTeacher);
 
 export default router;
