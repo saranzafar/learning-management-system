@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, CircleUserRoundIcon } from 'lucide-react';
+import { CircleUserRoundIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import conf from "../../conf/conf"
@@ -10,10 +10,11 @@ function Subject() {
 
     const [formData, setFormData] = useState({ name: '', teacher: '', grade: '' });
     const [teacherData, setTeacherData] = useState([]);
+    const [subjectData, setSubjectData] = useState([]);
     const [buttonLoading, setButtonLoading] = useState(false);
-    const [teacherLoading, setTeachersLoading] = useState(false);
-    const [deleteLoading, setDeleteLoading] = useState({});
+    const [deleteLoadingSub, setDeleteLoadingSub] = useState({});
 
+    console.log("SUB: ", subjectData);
     const handleChange = (field, value) => {
         setFormData({ ...formData, [field]: value });
     };
@@ -46,48 +47,71 @@ function Subject() {
                 setButtonLoading(false);
             });
     };
+
+    const getAllTeachers = async () => {
+        try {
+            const token = await window.electronAPI.getUserData();
+            const response = await axios.get(`${conf.backendUrl}teacher/get-all-teachers`, {
+                headers: {
+                    Authorization: `Bearer ${token?.token}`
+                }
+            });
+            setTeacherData(response?.data?.data?.teachers);
+        } catch (err) {
+            setTeacherData([]);
+            console.log("err: ", err);
+            toast.error(`Error: ${err?.response?.data?.message}`, {
+                position: "bottom-right",
+                autoClose: 2000,
+            });
+        }
+    };
     useEffect(() => {
-        const getAllTeachers = async () => {
-            try {
-                const token = await window.electronAPI.getUserData();
-                const response = await axios.get(`${conf.backendUrl}teacher/get-all-teachers`, {
-                    headers: {
-                        Authorization: `Bearer ${token?.token}`
-                    }
-                });
-                setTeacherData(response?.data?.data?.teachers);
-            } catch (err) {
-                setTeacherData([]);
-                toast.error(`Error: ${err?.response?.data?.message}`, {
-                    position: "bottom-right",
-                    autoClose: 2000,
-                });
-            }
-        };
         getAllTeachers();
     }, []);
-    
-    useEffect(()=>{
 
-    },[])
-    const deleteTeacher = async (id) => {
-        setDeleteLoading((prev) => ({ ...prev, [id]: true }));
+    const getAllSubjects = async () => {
+        try {
+            const token = await window.electronAPI.getUserData();
+            const response = await axios.get(`${conf.backendUrl}subject/get-all-subjects`, {
+                headers: {
+                    Authorization: `Bearer ${token?.token}`
+                }
+            });
+            setSubjectData(response?.data?.data.subjects);
+            // console.log("RES: ", response?.data?.data.subjects);
+        } catch (err) {
+            setSubjectData([]);
+            console.log("err: ", err);
+            toast.error(`Error: ${err?.response?.data?.message || err.message}`, {
+                position: "bottom-right",
+                autoClose: 2000,
+            });
+        }
+    };
+    useEffect(() => {
+        getAllSubjects();
+    }, [])
+
+    const deleteSubject = async (id) => {
+        console.log("DELETE ", id);
+        setDeleteLoadingSub((prev) => ({ ...prev, [id]: true }));
         const token = await window.electronAPI.getUserData();
-        await axios.delete(`${conf.backendUrl}teacher/delete-teacher/${id}`, {
+        await axios.delete(`${conf.backendUrl}subject/delete-subject/${id}`, {
             headers: {
                 Authorization: `Bearer ${token?.token}`
             }
         }).then((response) => {
             console.log("response = ", response?.data?.data?.teachers);
-            setDeleteLoading((prev) => ({ ...prev, [id]: false }));
-            // getAllTeachers()
+            setDeleteLoadingSub((prev) => ({ ...prev, [id]: false }));
+            getAllSubjects()
         }).catch((err) => {
             console.log("Error: ", err);
             toast.error(`Error: ${err}`, {
                 position: "bottom-right",
                 autoClose: 2000,
             });
-            setDeleteLoading((prev) => ({ ...prev, [id]: false }));
+            setDeleteLoadingSub((prev) => ({ ...prev, [id]: false }));
         })
     }
 
@@ -166,7 +190,7 @@ function Subject() {
                                         value={formData.gender}
                                         onChange={(e) => handleChange('teacher', e.target.value)}
                                     >
-                                        <option value="" disabled>Select teacher</option>
+                                        <option value="">Select teacher</option>
                                         {teacherData.length > 0 && teacherData.map((teacher) => (
                                             <option key={teacher._id} value={teacher._id}>{teacher.name}</option>
                                         ))}
@@ -184,37 +208,27 @@ function Subject() {
                         </div>
                     </form>
 
-                    {/* all teachers  */}
+                    {/* all subjects  */}
                     <form className="mt-8 border-b-2 pb-16 w-2/3 mx-auto" onSubmit={handleSubmit}>
                         <div className="space-y-5">
                             <div>
                                 <h2 className="text-center text-2xl font-bold leading-tight text-gray-800">
                                     All Subjects
                                 </h2>
-                                {!teacherData.length &&
-                                    <div className='w-full mx-auto flex justify-center items-center'>
-                                        <button
-                                            type="button"
-                                            // onClick={getAllTeachers}
-                                            className="inline-flex justify-center items-center px-3.5 mt-4 py-2.5 font-semibold leading-7 underline hover:text-gray-600"
-                                            disabled={buttonLoading}>
-                                            {teacherLoading ? ' wait...' : 'Click to load Subjects'}
-                                        </button>
-                                    </div>
-                                }
-                                {teacherData.length > 0 ? (
+
+                                {subjectData?.length ? (
                                     <section className="mx-auto w-full max-w-7xl px-4 py-4">
                                         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
                                             <div>
-                                                <h2 className="text-lg font-semibold">Teachers</h2>
+                                                <h2 className="text-lg font-semibold">Subjects</h2>
                                                 <p className="mt-1 text-sm text-gray-700">
-                                                    This is a list of all teachers. You can add new teachers and delete existing ones.
+                                                    This is a list of all subjects. You can add new subjects and delete existing ones.
                                                 </p>
                                             </div>
                                             <div>
                                                 <button
                                                     type="button"
-                                                    // onClick={getAllTeachers}
+                                                    onClick={getAllSubjects}
                                                     className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
                                                 >
                                                     Refresh
@@ -227,12 +241,12 @@ function Subject() {
                                                     <div className="overflow-hidden border border-gray-200 md:rounded-lg">
                                                         <table className="min-w-full divide-y divide-gray-200">
                                                             <thead className="bg-gray-50 w-full">
-                                                                <tr>
+                                                                <tr className=''>
                                                                     <th
                                                                         scope="col"
                                                                         className="px-4 py-3.5 text-left text-sm font-normal text-gray-700"
                                                                     >
-                                                                        <span>Name</span>
+                                                                        <span>Instructure</span>
                                                                     </th>
                                                                     <th
                                                                         scope="col"
@@ -245,44 +259,54 @@ function Subject() {
                                                                         scope="col"
                                                                         className="px-4 py-3.5 text-left text-sm font-normal text-gray-700"
                                                                     >
-                                                                        Gender
+                                                                        Subject
                                                                     </th>
-                                                                    <th scope="col" className="relative px-4 py-3.5">
-                                                                        <span className="sr-only">Edit</span>
+                                                                    <th
+                                                                        scope="col"
+                                                                        className="px-4 py-3.5 text-left text-sm font-normal text-gray-700"
+                                                                    >
+                                                                        Class
                                                                     </th>
+                                                                    <th
+                                                                        scope="col"
+                                                                        className="px-4 py-3.5 text-left text-sm font-normal text-gray-700"
+                                                                    ></th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody className="divide-y divide-gray-200 bg-white">
-                                                                {teacherData?.map((teacher) => (
-                                                                    <tr key={teacher._id}>
+                                                                {subjectData?.map((subject) => (
+                                                                    <tr key={subject._id}>
                                                                         <td className="whitespace-nowrap px-4 py-4">
                                                                             <div className="flex items-center">
                                                                                 <div className="">
                                                                                     <CircleUserRoundIcon size={26} strokeWidth={1.3} />
                                                                                 </div>
                                                                                 <div className="ml-4">
-                                                                                    <div className="text-sm font-medium text-gray-900">{teacher.name}</div>
-                                                                                    <div className="text-sm text-gray-700">{teacher.address}</div>
+                                                                                    <div className="text-sm font-medium text-gray-900">{subject.teacher?.name}</div>
+                                                                                    <div className="text-sm text-gray-700">{subject.teacher?.address}</div>
                                                                                 </div>
                                                                             </div>
                                                                         </td>
                                                                         <td className="whitespace-nowrap px-12 py-4">
-                                                                            <div className="text-sm text-gray-900 ">{teacher.email}</div>
-                                                                            <div className="text-sm text-gray-700">{teacher.phoneNumber}</div>
+                                                                            <div className="text-sm text-gray-900 ">{subject.teacher?.email}</div>
+                                                                            <div className="text-sm text-gray-700">{subject.teacher?.phoneNumber}</div>
                                                                         </td>
                                                                         <td className="whitespace-nowrap px-4 py-4">
                                                                             <span className="inline-flex rounded-full bg-gray-100 px-2 text-xs font-semibold leading-5 text-gray-800">
-                                                                                {teacher.gender}
+                                                                                {subject.name}
                                                                             </span>
+                                                                        </td>
+                                                                        <td className="whitespace-nowrap px-2 py-4 font-semibold">
+                                                                            <div className="text-sm text-gray-900 ">{subject.grade}</div>
                                                                         </td>
                                                                         <td className="whitespace-nowrap px-4 py-4 text-right text-sm font-medium">
                                                                             <button
                                                                                 type="button"
                                                                                 className="text-red-600 hover:text-red-900"
-                                                                                onClick={() => deleteTeacher(teacher._id)}
-                                                                                disabled={deleteLoading[teacher._id]}
+                                                                                onClick={() => deleteSubject(subject._id)}
+                                                                                disabled={deleteLoadingSub[subject._id]}
                                                                             >
-                                                                                {deleteLoading[teacher._id] ? 'Deleting...' : 'Delete'}
+                                                                                {deleteLoadingSub[subject._id] ? 'Deleting...' : 'Delete'}
                                                                             </button>
                                                                         </td>
                                                                     </tr>
