@@ -24,80 +24,64 @@ const getSubjectsByGrade = asyncHandler(async (req, res) => {
 });
 
 const addTimetable = asyncHandler(async (req, res) => {
-    const { gender, address, phoneNumber, password } = req.body;
+    const { grade, subject, startTime, endTime, teacher } = req.body.formData;
 
-    if (!name || !email || !gender || !address || !phoneNumber || !password) {
+    if (!grade || !subject || !startTime || !endTime || !teacher) {
         return res.status(400).json(new ApiResponse(400, "Please provide all required fields"));
     }
-    const existingTeacher = await Teacher.findOne({ email });
-    if (existingTeacher) {
-        return res.status(409).json(new ApiResponse(409, "Email already in use"));
+
+    // Check for existing timetable entry for the same grade and subject
+    const existingTimetable = await Timetable.findOne({ grade, subject });
+    if (existingTimetable) {
+        return res.status(409).json(new ApiResponse(409, "Timetable entry for this grade and subject already exists"));
     }
 
-    const teacher = new Teacher({
-        name,
-        email,
-        gender,
-        address,
-        phoneNumber,
-        password
+    // Create new timetable entry
+    const timetable = new Timetable({
+        grade,
+        subject,
+        startTime,
+        endTime,
+        teacher
     });
 
-    await teacher.save();
-
-    return res.status(201).json(new ApiResponse(201, "Teacher added successfully", { teacher }));
+    try {
+        await timetable.save();
+        return res.status(201).json(new ApiResponse(201, "Timetable added successfully", {}));
+    } catch (error) {
+        // Log the error for debugging
+        console.error('Error saving timetable:', error);
+        return res.status(500).json(new ApiResponse(500, "Error saving timetable"));
+    }
 });
 
-// const loginTeacher = asyncHandler(async (req, res) => {
-//     const { email, password } = req.body;
+const getAllTimetables = asyncHandler(async (req, res) => {
+    const timetables = await Timetable.find().populate('teacher', '-password');
 
-//     if (!email || !password) {
-//         return res.status(400).json(new ApiResponse(400, "Please provide email and password"));
-//     }
+    if (!timetables || timetables.length === 0) {
+        return res.status(404).json(new ApiResponse(404, "No timetables found", []));
+    }
 
-//     const teacher = await Teacher.findOne({ email });
-//     if (!teacher) {
-//         return res.status(401).json(new ApiResponse(401, "Invalid email or password"));
-//     }
+    return res.status(200).json(new ApiResponse(200, "Timetables retrieved successfully", { timetables }));
+});
 
-//     const isPasswordCorrect = await teacher.isPasswordCorrect(password);
-//     if (!isPasswordCorrect) {
-//         return res.status(401).json(new ApiResponse(401, "Invalid email or password"));
-//     }
+const deleteTimetable = asyncHandler(async (req, res) => {
+    const { id } = req.params;
 
-//     const token = jwt.sign({ _id: teacher._id, email: teacher.email }, process.env.ACCESS_TOKEN_SECRET, {
-//         expiresIn: "1d"
-//     });
+    if (!id) {
+        return res.status(404).json(new ApiResponse(404, "Please provide timetable id"));
+    }
+    const timetable = await Timetable.findByIdAndDelete(id);
+    if (!timetable) {
+        return res.status(404).json(new ApiResponse(404, "Timetable not found"));
+    }
+    return res.status(200).json(new ApiResponse(200, "Timetable deleted successfully"));
+});
 
-//     // Send response with token
-//     res.status(200).json(new ApiResponse(200, "Login successful", { token }));
-// });
-
-// const getAllTeachers = asyncHandler(async (req, res) => {
-//     const teachers = await Teacher.find().select("-password");
-
-//     if (!teachers || teachers.length === 0) {
-//         return res.status(404).json(new ApiResponse(404, "No teachers found", []));
-//     }
-
-//     return res.status(200).json(new ApiResponse(200, "Teachers retrieved successfully", { teachers }));
-// });
-
-// const deleteTeacher = asyncHandler(async (req, res) => {
-//     const { id } = req.params;
-//     if (!id) {
-//         return res.status(404).json(new ApiResponse(404, "Please provide teacher id"));
-//     }
-
-//     const teacher = await Teacher.findByIdAndDelete(id);
-
-//     if (!teacher) {
-//         return res.status(404).json(new ApiResponse(404, "Teacher not found"));
-//     }
-
-//     return res.status(200).json(new ApiResponse(200, "Teacher deleted successfully"));
-// });
 
 export {
     getSubjectsByGrade,
+    addTimetable,
+    getAllTimetables,
+    deleteTimetable,
 };
