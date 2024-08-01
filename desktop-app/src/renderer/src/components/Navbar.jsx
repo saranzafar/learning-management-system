@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserRoundPen, BookOpenTextIcon, CalendarDaysIcon, ListTodoIcon, ScrollIcon, LogOutIcon, Users2Icon } from "lucide-react";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, NavLink } from 'react-router-dom';
 import conf from '../conf/conf';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
@@ -33,46 +33,78 @@ function Navbar() {
             });
         }
     };
+    function classNames(...classes) {
+        return classes.filter(Boolean).join(' ');
+    }
 
     return (
-        <div className="flex flex-col h-full ">
+        <div className="h-[90vh] flex flex-col justify-between">
             <ToastContainer />
             <nav className="flex-1 px-4 py-4">
-                <Link to="/home/teacher"
-                    className="flex items-center px-4 py-2 my-2 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md">
-                    <UserRoundPen strokeWidth={1.5} />
+                <NavLink
+                    to="/home/teacher"
+                    className={({ isActive }) =>
+                        classNames(
+                            isActive ? 'bg-gray-100 text-gray-700' : '',
+                            'flex items-center px-4 py-2 my-4 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md  '
+                        )}>
+                    <UserRoundPen />
                     Teacher
-                </Link>
-                <Link to="/home/subject"
-                    className="flex items-center px-4 py-2 my-2 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md">
+                </NavLink>
+                <NavLink to="/home/subject"
+                    className={({ isActive }) =>
+                        classNames(
+                            isActive ? 'bg-gray-100 text-gray-700' : '',
+                            'flex items-center px-4 py-2 my-4 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md '
+                        )}>
                     <BookOpenTextIcon strokeWidth={1.5} />
                     Subject
-                </Link>
-                <Link to="/home/timetable"
-                    className="flex items-center px-4 py-2 my-2 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md">
+                </NavLink>
+                <NavLink to="/home/timetable"
+                    className={({ isActive }) =>
+                        classNames(
+                            isActive ? 'bg-gray-100 text-gray-700' : '',
+                            'flex items-center px-4 py-2 my-4 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md '
+                        )
+                    }>
                     <CalendarDaysIcon strokeWidth={1.5} />
                     Timetable
-                </Link>
-                <Link to="/home/attendence"
-                    className="flex items-center px-4 py-2 my-2 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md">
+                </NavLink>
+                <NavLink to="/home/attendence"
+                    className={({ isActive }) =>
+                        classNames(
+                            isActive ? 'bg-gray-100 text-gray-700' : '',
+                            'flex items-center px-4 py-2 my-4 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md '
+                        )
+                    }>
                     <ListTodoIcon strokeWidth={1.5} />
                     Attendence
-                </Link>
-                <Link to="/home/student"
-                    className="flex items-center px-4 py-2 my-2 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md">
+                </NavLink>
+                <NavLink to="/home/student"
+                    className={({ isActive }) =>
+                        classNames(
+                            isActive ? 'bg-gray-100 text-gray-700' : '',
+                            'flex items-center px-4 py-2 my-4 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md '
+                        )
+                    }>
                     <Users2Icon strokeWidth={1.5} />
                     Student
-                </Link>
-                <Link to="/home/fee-report"
-                    className="flex items-center px-4 py-2 my-2 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md">
+                </NavLink>
+                <NavLink to="/home/fee-report"
+                    className={({ isActive }) =>
+                        classNames(
+                            isActive ? 'bg-gray-100 text-gray-700' : '',
+                            'flex items-center px-4 py-2 my-4 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md '
+                        )
+                    }>
                     <ScrollIcon strokeWidth={1.5} />
                     Fee Report
-                </Link>
+                </NavLink>
             </nav>
             <nav className="px-4 py-4">
                 <button
                     onClick={handleLogout}
-                    className="flex items-center px-4 py-2 my-2 text-gray-600 hover:text-red-600 gap-2 font-semibold rounded-md w-full text-left"
+                    className="flex items-center px-4 py-2 my-4 text-gray-600 hover:text-red-600 gap-2 font-semibold rounded-md  w-full text-left"
                 >
                     <LogOutIcon strokeWidth={1.5} />
                     Logout
