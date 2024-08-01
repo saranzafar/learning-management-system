@@ -4,7 +4,6 @@ import { Subject } from "../models/subject.model.js";
 
 const addSubject = asyncHandler(async (req, res) => {
     const { name, teacher, grade } = req.body;
-    console.log(name, teacher, grade);
     if (!name || !teacher || !grade) {
         return res.status(400).json(new ApiResponse(400, "Please provide all required fields"));
     }
