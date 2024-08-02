@@ -321,7 +321,7 @@ function Subject() {
                                 ) : (
                                     <div className="w-full mx-auto flex justify-center items-center my-10 py-10">
                                         <p className="text-center text-sm text-gray-600">
-                                            Please reload or register a teacher.
+                                            Please reload or add a subject.
                                         </p>
                                     </div>
                                 )}

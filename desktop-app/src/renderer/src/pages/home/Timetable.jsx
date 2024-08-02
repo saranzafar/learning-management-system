@@ -11,12 +11,12 @@ function Subject() {
     const [formData, setFormData] = useState({ name: '', teacher: '', grade: '' });
     const [teacherData, setTeacherData] = useState([]);
     const [subjectData, setSubjectData] = useState([]);
+    const [selectedSubData, setSelectedSubData] = useState([]);
     const [buttonLoading, setButtonLoading] = useState(false);
     const [deleteLoadingSub, setDeleteLoadingSub] = useState({});
 
     const [grade, setGrade] = useState("");
     const [gradeData, setGradeData] = useState([]);
-    console.log("GRADE DARA: ", gradeData);
 
     const handleGradeSubmit = async (e) => {
         e.preventDefault();
@@ -31,6 +31,7 @@ function Subject() {
             .then((response) => {
                 setGradeData([])
                 console.log("RESPONSE: ", response.data.data.subjects);
+                setSelectedSubData(response.data.data.subjects)
                 toast.success(`${response?.data?.message}`, {
                     position: "bottom-right",
                     autoClose: 2000,
@@ -155,12 +156,12 @@ function Subject() {
                             Goto Timetable
                         </Link>
                     </p>
-                    {/* Form  */}
+                    {/* Select Form  */}
                     <form className="mt-8 border-b-2 pb-16 w-full " onSubmit={handleGradeSubmit}>
-                        <div className="space-y-5 w-2/3 mx-auto">
-                            <div>
+                        <div className="space-y-5 w-2/3 mx-auto flex">
+                            <div className='w-5/6 pr-2'>
                                 <label htmlFor="grade" className="text-base font-medium text-gray-700">
-                                    Grade
+                                    Select Grade
                                 </label>
                                 <div className="mt-2">
                                     <select
@@ -181,16 +182,92 @@ function Subject() {
                                     </select>
                                 </div>
                             </div>
-                            <div className='w-full flex justify-end'>
+                            <div className='w-1/6 flex justify-end'>
                                 <button
                                     type="submit"
-                                    className="inline-flex w-44 items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
+                                    className="inline-flex w-44 items-center justify-center rounded-md bg-black font-semibold leading-7 text-white hover:bg-black/80 py-0"
                                     disabled={buttonLoading}>
-                                    {buttonLoading ? 'Please wait...' : 'Make Timetable'}
+                                    {buttonLoading ? 'Please wait...' : 'Select'}
                                 </button>
                             </div>
                         </div>
                     </form>
+
+                    {/* Add timetable  */}
+                    {selectedSubData.map((subject) => (
+                        <form key={subject._id} className="mt-8 border-b-2 pb-16 w-full " onSubmit={handleSubmit}>
+                            <div className="space-y-5 w-2/3 mx-auto">
+                                <div>
+                                    <label htmlFor="name" className="text-base font-medium text-gray-700">
+                                        Grade
+                                    </label>
+                                    <div className="mt-2">
+                                        <input
+                                            className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                            type="text"
+                                            placeholder="Subject Name"
+                                            id="name"
+                                            required
+                                            value={subject.grade}
+                                        // onChange={(e) => handleChange('name', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label htmlFor="grade" className="text-base font-medium text-gray-700">
+                                        Grade
+                                    </label>
+                                    <div className="mt-2">
+                                        <select
+                                            className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="grade"
+                                            required
+                                            value={formData.grade}
+                                            onChange={(e) => handleChange('grade', e.target.value)}
+                                        >
+                                            <option value="" disabled>Select Subject</option>
+                                            <option value="Grade-1">Grade-1</option>
+                                            <option value="Grade-2">Grade-2</option>
+                                            <option value="Grade-3">Grade-3</option>
+                                            <option value="Grade-4">Grade-4</option>
+                                            <option value="Grade-5">Grade-5</option>
+                                            <option value="Grade-6">Grade-6</option>
+                                            <option value="Grade-7">Grade-7</option>
+                                            <option value="Grade-8">Grade-8</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="teacher" className="text-base font-medium text-gray-700">
+                                        Teacher
+                                    </label>
+                                    <div className="mt-2">
+                                        <select
+                                            className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                            id="teacher"
+                                            required
+                                            value={formData.gender}
+                                            onChange={(e) => handleChange('teacher', e.target.value)}
+                                        >
+                                            <option value="">Select teacher</option>
+                                            {teacherData.length > 0 && teacherData.map((teacher) => (
+                                                <option key={teacher._id} value={teacher._id}>{teacher.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className='w-full flex justify-end'>
+                                    <button
+                                        type="submit"
+                                        className="inline-flex w-44 items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
+                                        disabled={buttonLoading}>
+                                        {buttonLoading ? 'Please wait...' : 'Add Subject'}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    ))}
 
                     {/* all subjects  */}
                     <form className="mt-8 border-b-2 pb-16 w-2/3 mx-auto" onSubmit={handleSubmit}>
