@@ -5,17 +5,19 @@ const studentSchema = new Schema({
     name: {
         type: String,
         required: true,
-        default: "student"
     },
-    rollNumber: {
+    fatherName: {
         type: String,
+        required: true,
+    },
+    rollNo: {
+        type: Number,
         unique: true,
         required: true
     },
     password: {
         type: String,
         required: true,
-        default: "student@123"
     },
     dateOfBirth: {
         type: Date,
@@ -35,8 +37,10 @@ const studentSchema = new Schema({
         required: true
     },
     grade: {
-        type: mongoose.Types.ObjectId,
-        ref: "Grade",
+        type: String,
+        required: true,
+        unique: false,
+        enum: ["Grade-1", "Grade-2", "Grade-3", "Grade-4", "Grade-5", "Grade-6", "Grade-7", "Grade-8"],
     },
 }, { timestamps: true });
 

@@ -18,12 +18,14 @@ import adminRoutes from "./routes/admin.routes.js"
 import teacherRoutes from "./routes/teacher.routes.js"
 import subjectRoutes from "./routes/subject.routes.js"
 import timetableRoutes from "./routes/timetable.routes.js"
+import studentRoutes from "./routes/student.routes.js"
 
 // routes declaration 
 app.use("/admin", adminRoutes)
 app.use("/teacher", teacherRoutes)
 app.use("/subject", subjectRoutes)
 app.use("/timetable", timetableRoutes)
+app.use("/student", studentRoutes)
 
 // http://localhost:8000/admin/register-student
 
