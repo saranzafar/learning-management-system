@@ -70,16 +70,6 @@ function Navbar() {
                     <CalendarDaysIcon strokeWidth={1.5} />
                     Timetable
                 </NavLink>
-                <NavLink to="/home/attendence"
-                    className={({ isActive }) =>
-                        classNames(
-                            isActive ? 'bg-gray-100 text-gray-700' : '',
-                            'flex items-center px-4 py-2 my-4 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md '
-                        )
-                    }>
-                    <ListTodoIcon strokeWidth={1.5} />
-                    Attendence
-                </NavLink>
                 <NavLink to="/home/student"
                     className={({ isActive }) =>
                         classNames(
@@ -89,6 +79,16 @@ function Navbar() {
                     }>
                     <Users2Icon strokeWidth={1.5} />
                     Student
+                </NavLink>
+                <NavLink to="/home/attendence"
+                    className={({ isActive }) =>
+                        classNames(
+                            isActive ? 'bg-gray-100 text-gray-700' : '',
+                            'flex items-center px-4 py-2 my-4 text-gray-600 hover:bg-gray-100 hover:text-gray-700 gap-2 font-semibold rounded-md '
+                        )
+                    }>
+                    <ListTodoIcon strokeWidth={1.5} />
+                    Attendence
                 </NavLink>
                 <NavLink to="/home/fee-report"
                     className={({ isActive }) =>
