@@ -8,7 +8,7 @@ cloudinary.config({
 });
 
 
-const uploadOnCloudinary = async (localFilePath, folderPath = 'ecommerceWeb') => {
+const uploadOnCloudinary = async (localFilePath, folderPath = 'learning-management-system') => {
     try {
         if (!localFilePath) return null;
         //upload file on cloudinary
