@@ -10,7 +10,7 @@ const router = express.Router();
 router.use(verifyJwt)
 
 router.post("/register-student", registerStudent);
-router.get("/get-all-students", getAllStudents);
+router.get("/get-all-students/:id", getAllStudents);
 router.delete("/delete-student/:id", deleteStudent);
 
 export default router;

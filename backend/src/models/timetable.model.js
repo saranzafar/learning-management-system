@@ -23,6 +23,10 @@ const timeTableSchema = new Schema({
         type: String,
         required: true,
     },
+    user: {
+        type: mongoose.Types.ObjectId,
+        ref: "Admin",
+    },
 }, { timestamps: true });
 
 timeTableSchema.index({ grade: 1, subject: 1 }, { unique: false });

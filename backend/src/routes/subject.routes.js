@@ -10,7 +10,7 @@ const router = express.Router();
 router.use(verifyJwt)
 
 router.post("/add-subject", addSubject);
-router.get("/get-all-subjects", getAllSubjects);
+router.post("/get-all-subjects", getAllSubjects);
 router.delete("/delete-subject/:id", deleteSubject);
 
 export default router;

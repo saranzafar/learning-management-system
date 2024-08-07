@@ -7,7 +7,17 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function Student() {
 
-    const [formData, setFormData] = useState({ name: '', fatherName: '', rollNo: '', dateOfBirth: '', gender: '', address: '', phoneNumber: '', grade: '' });
+    const [formData, setFormData] = useState({
+        name: '',
+        fatherName: '',
+        rollNo: '',
+        dateOfBirth: '',
+        gender: '',
+        address: '',
+        phoneNumber: '',
+        grade: '',
+        user: ''
+    });
     const [studentFormButtonLoading, setStudentFormButtonLoading] = useState(false);
     const [allStudents, setAllStudents] = useState([]);
     const [deleteLoadingSub, setDeleteLoadingSub] = useState({});
@@ -16,14 +26,17 @@ function Student() {
     const getAllStudents = async () => {
         try {
             const token = await window.electronAPI.getUserData();
-            const response = await axios.get(`${conf.backendUrl}student/get-all-students`, {
+            const id = token.admin._id
+            const response = await axios.get(`${conf.backendUrl}student/get-all-students/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token?.token}`
                 }
             });
             setAllStudents(response?.data?.data?.students)
         } catch (err) {
-            alert("Poor network, please reload")
+            console.log("Error::", err.response);
+
+            // alert("")
         }
     };
     useEffect(() => {
@@ -52,7 +65,7 @@ function Student() {
             setDeleteLoadingSub((prev) => ({ ...prev, [id]: false }));
             getAllStudents()
         }).catch((err) => {
-            alert("Check Your Network or Reload")
+            alert("Check Your Network or Reload" || err?.response.data.message)
             setDeleteLoadingSub((prev) => ({ ...prev, [id]: false }));
         })
     }
@@ -70,7 +83,7 @@ function Student() {
             gender: '',
             address: '',
             phoneNumber: '',
-            grade: ''
+            grade: '',
         });
     };
 
@@ -78,6 +91,7 @@ function Student() {
         e.preventDefault();
         setStudentFormButtonLoading(true);
         const token = await window.electronAPI.getUserData();
+        formData.user = token.admin._id
         await axios.post(`${conf.backendUrl}student/register-student`, formData,
             {
                 headers: {
@@ -90,7 +104,9 @@ function Student() {
                 setFormdataBlank()
             })
             .catch((err) => {
-                alert("Error While Adding Student")
+                console.log();
+
+                alert(err?.response.data.message || "Check Network and reload")
                 setStudentFormButtonLoading(false);
             });
         return
@@ -281,7 +297,7 @@ function Student() {
                                         <div>
                                             <button
                                                 type="button"
-                                                onClick={() => { getAllStudents }}
+                                                onClick={() => { getAllStudents() }}
                                                 className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
                                             >
                                                 Refresh

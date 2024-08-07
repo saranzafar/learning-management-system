@@ -12,7 +12,7 @@ router.use(verifyJwt)
 
 router.post("/get-subject-by-grade", getSubjectsByGrade);
 router.post("/add-timetable", addTimetable);
-router.get("/get-all-timetables", getAllTimetables);
+router.get("/get-all-timetables/:id", getAllTimetables);
 router.delete("/delete-timetable/:id", deleteTimetable);
 
 export default router;

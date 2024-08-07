@@ -2,6 +2,10 @@ import mongoose, { Schema } from "mongoose";
 import bcrypt from 'bcrypt';
 
 const studentSchema = new Schema({
+    user: {
+        type: mongoose.Types.ObjectId,
+        ref: "Admin",
+    },
     name: {
         type: String,
         required: true,

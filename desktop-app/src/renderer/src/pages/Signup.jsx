@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function SignUp() {
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', location: '', logo: null });
     const [buttonLoading, setButtonLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -21,18 +21,33 @@ function SignUp() {
         setPasswordVisible(!passwordVisible);
     };
 
+    const handleFileChange = (e) => {
+        setFormData({ ...formData, logo: e.target.files[0] });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setButtonLoading(true);
 
-        await axios.post(`${conf.backendUrl}admin/register-admin`, formData)
+        const formDataToSend = new FormData();
+        formDataToSend.append('name', formData.name);
+        formDataToSend.append('email', formData.email);
+        formDataToSend.append('password', formData.password);
+        formDataToSend.append('location', formData.location);
+        if (formData.logo) {
+            formDataToSend.append('logoImage', formData.logo);
+        }
+
+        await axios.post(`${conf.backendUrl}admin/register-admin`, formDataToSend, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
             .then((response) => {
                 navigate("/"); // redirection
-                console.log("response = ", response);
                 setButtonLoading(false);
             })
             .catch((err) => {
-                console.log("ERROR:", err?.response);
                 toast.error(`Error: ${err?.response?.data?.message}`, {
                     position: "bottom-right",
                     autoClose: 2000,
@@ -77,13 +92,13 @@ function SignUp() {
                         <div className="space-y-5">
                             <div>
                                 <label htmlFor="name" className="text-base font-medium text-gray-900">
-                                    Name
+                                    School Name
                                 </label>
                                 <div className="mt-2">
                                     <input
                                         className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                                         type="text"
-                                        placeholder="Name"
+                                        placeholder="School Name"
                                         id="name"
                                         required
                                         value={formData.name}
@@ -129,6 +144,36 @@ function SignUp() {
                                         required
                                         value={formData.password}
                                         onChange={(e) => handleChange('password', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label htmlFor="location" className="text-base font-medium text-gray-900">
+                                    Location
+                                </label>
+                                <div className="mt-2">
+                                    <input
+                                        className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                        type="text"
+                                        placeholder="Location"
+                                        id="location"
+                                        required
+                                        value={formData.location}
+                                        onChange={(e) => handleChange('location', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label htmlFor="logo" className="text-base font-medium text-gray-900">
+                                    Your Logo
+                                </label>
+                                <div className="mt-2">
+                                    <input
+                                        className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                        type='file'
+                                        accept="image/*"
+                                        id="logo"
+                                        onChange={handleFileChange}
                                     />
                                 </div>
                             </div>

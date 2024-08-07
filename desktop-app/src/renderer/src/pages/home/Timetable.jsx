@@ -21,7 +21,8 @@ function Subject() {
         e.preventDefault();
         setGradeButtonLoading(true);
         const token = await window.electronAPI.getUserData();
-        await axios.post(`${conf.backendUrl}timetable/get-subject-by-grade`, { grade },
+        const id = token?.admin?._id
+        await axios.post(`${conf.backendUrl}timetable/get-subject-by-grade`, { grade, id },
             {
                 headers: {
                     Authorization: `Bearer ${token?.token}`,
@@ -47,7 +48,8 @@ function Subject() {
         subject: '',
         teacher: '',
         startTime: '08:00 AM',
-        endTime: '09:00 AM'
+        endTime: '09:00 AM',
+        user: ''
     });
 
     const handleChange = (field, value) => {
@@ -77,8 +79,6 @@ function Subject() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        console.log("FORM DATA:: ", formData);
-
         if (formData.startTime >= formData.endTime) {
             alert('Start time must be before end time');
             return;
@@ -87,6 +87,7 @@ function Subject() {
         setButtonLoading(true);
         try {
             const token = await window.electronAPI.getUserData();
+            formData.user = token.admin._id
             const response = await axios.post(`${conf.backendUrl}timetable/add-timetable`, { formData },
                 {
                     headers: {
@@ -116,7 +117,8 @@ function Subject() {
     const getAllTimetables = async () => {
         try {
             const token = await window.electronAPI.getUserData();
-            const response = await axios.get(`${conf.backendUrl}timetable/get-all-timetables`, {
+            const id = token.admin._id
+            const response = await axios.get(`${conf.backendUrl}timetable/get-all-timetables/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token?.token}`
                 }
@@ -396,8 +398,8 @@ function Subject() {
                                                                     <td className="whitespace-nowrap py-4">
                                                                         <div className="flex items-center">
                                                                             <div className="ml-4">
-                                                                                <div className="text-sm font-medium text-gray-900">{timetable.teacher.name}</div>
-                                                                                <div className="text-sm text-gray-700">{timetable.teacher.email}</div>
+                                                                                <div className="text-sm font-medium text-gray-900">{timetable?.teacher?.name}</div>
+                                                                                <div className="text-sm text-gray-700">{timetable?.teacher?.email}</div>
                                                                             </div>
                                                                         </div>
                                                                     </td>

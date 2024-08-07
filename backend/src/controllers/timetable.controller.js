@@ -5,9 +5,12 @@ import { Subject } from "../models/subject.model.js"
 import jwt from "jsonwebtoken";
 
 const getSubjectsByGrade = asyncHandler(async (req, res) => {
-    const { grade } = req.body;
-    if (!grade) {
-        return res.status(400).json(new ApiResponse(400, "Grade name is required"));
+    const { grade, id } = req.body;
+    console.log(grade, id);
+
+
+    if (!grade || !id) {
+        return res.status(400).json(new ApiResponse(400, "Grade and ID are required"));
     }
 
     const validGrades = ["Grade-1", "Grade-2", "Grade-3", "Grade-4", "Grade-5", "Grade-6", "Grade-7", "Grade-8"];
@@ -15,18 +18,22 @@ const getSubjectsByGrade = asyncHandler(async (req, res) => {
         return res.status(400).json(new ApiResponse(400, "Invalid grade name"));
     }
 
-    const subjects = await Subject.find({ grade }).populate('teacher', '-password');
-    if (!subjects || subjects.length === 0) {
-        return res.status(404).json(new ApiResponse(404, "No subjects found for the given grade"));
-    }
+    try {
+        const subjects = await Subject.find({ grade, user: id }).populate('teacher', '-password');
+        if (!subjects || subjects.length === 0) {
+            return res.status(404).json(new ApiResponse(404, "No subjects found for the given grade and user ID"));
+        }
 
-    return res.status(200).json(new ApiResponse(200, "Subjects retrieved successfully", { subjects }));
+        return res.status(200).json(new ApiResponse(200, "Subjects retrieved successfully", { subjects }));
+    } catch (error) {
+        return res.status(500).json(new ApiResponse(500, "Internal server error", { error }));
+    }
 });
 
 const addTimetable = asyncHandler(async (req, res) => {
-    const { grade, subject, startTime, endTime, teacher } = req.body.formData;
+    const { grade, subject, startTime, endTime, teacher, user } = req.body.formData;
 
-    if (!grade || !subject || !startTime || !endTime || !teacher) {
+    if (!grade || !subject || !startTime || !endTime || !teacher || !user) {
         return res.status(400).json(new ApiResponse(400, "Please provide all required fields"));
     }
 
@@ -42,7 +49,8 @@ const addTimetable = asyncHandler(async (req, res) => {
         subject,
         startTime,
         endTime,
-        teacher
+        teacher,
+        user
     });
 
     try {
@@ -56,6 +64,8 @@ const addTimetable = asyncHandler(async (req, res) => {
 });
 
 const getAllTimetables = asyncHandler(async (req, res) => {
+    const { id } = req.params
+
     const timetables = await Timetable.find().populate('teacher', '-password');
 
     if (!timetables || timetables.length === 0) {

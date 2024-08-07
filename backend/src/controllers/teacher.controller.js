@@ -3,24 +3,29 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import { Teacher } from "../models/teacher.model.js";
 import jwt from "jsonwebtoken";
 
-const registerTeacher = asyncHandler(async (req, res) => {
-    const { name, email, gender, address, phoneNumber, password } = req.body;
 
-    if (!name || !email || !gender || !address || !phoneNumber || !password) {
+const registerTeacher = asyncHandler(async (req, res) => {
+    const { name, email, gender, address, phoneNumber, password, user } = req.body;
+
+    if (!name || !email || !gender || !address || !phoneNumber || !password || !user) {
         return res.status(400).json(new ApiResponse(400, "Please provide all required fields"));
     }
-    const existingTeacher = await Teacher.findOne({ email });
+
+    // Check if the email is already used by any teacher of this user
+    const existingTeacher = await Teacher.findOne({ email, user });
     if (existingTeacher) {
-        return res.status(409).json(new ApiResponse(409, "Email already in use"));
+        return res.status(409).json(new ApiResponse(409, "Email already in use by this user"));
     }
 
+    // Create new teacher
     const teacher = new Teacher({
         name,
         email,
         gender,
         address,
         phoneNumber,
-        password
+        password,
+        user
     });
 
     await teacher.save();
@@ -54,7 +59,9 @@ const loginTeacher = asyncHandler(async (req, res) => {
 });
 
 const getAllTeachers = asyncHandler(async (req, res) => {
-    const teachers = await Teacher.find().select("-password");
+    const { id } = req.body
+
+    const teachers = await Teacher.find({ user: id }).select("-password");
 
     if (!teachers || teachers.length === 0) {
         return res.status(404).json(new ApiResponse(404, "No teachers found", []));

@@ -24,18 +24,15 @@ function SignIn() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setButtonLoading(true);
-        console.log("FORMDATA = ", formData);
 
         await axios.post(`${conf.backendUrl}admin/login-admin`, formData)
             .then((response) => {
-                console.log("response = ", response.data);
                 window.electronAPI.saveUserData(response.data?.data);
                 navigate("/home"); // redirection
                 setButtonLoading(false);
             })
             .catch((err) => {
-                console.log("ERROR:", err);
-                toast.error(`Error: ${err?.response?.data?.message}`, {
+                toast.error(`Error: ${err?.response?.data?.message} `|| `Check Network and try again`, {
                     position: "bottom-right",
                     autoClose: 2000,
                 });
@@ -79,7 +76,7 @@ function SignIn() {
                         <div className="space-y-5">
                             <div>
                                 <label htmlFor="email" className="text-base font-medium text-gray-900">
-                                    Email
+                                    Email address
                                 </label>
                                 <div className="mt-2">
                                     <input

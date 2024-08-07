@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 function Teacher() {
 
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [formData, setFormData] = useState({ name: '', email: '', password: '', gender: '', address: '', phoneNumber: '' });
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', gender: '', address: '', phoneNumber: '', user: '' });
     const [teacherData, setTeacherData] = useState([]);
     const [buttonLoading, setButtonLoading] = useState(false);
     const [teacherLoading, setTeachersLoading] = useState(false);
@@ -28,6 +28,7 @@ function Teacher() {
         setButtonLoading(true);
 
         const token = await window.electronAPI.getUserData();
+        formData.user = token?.admin._id;
         await axios.post(`${conf.backendUrl}teacher/register-teacher`, formData,
             {
                 headers: {
@@ -35,7 +36,6 @@ function Teacher() {
                 },
             })
             .then((response) => {
-                console.log("response = ", response);
                 toast.success(`${response?.data?.message}`, {
                     position: "bottom-right",
                     autoClose: 2000,
@@ -43,8 +43,7 @@ function Teacher() {
                 setButtonLoading(false);
             })
             .catch((err) => {
-                console.log("ERROR:", err?.response);
-                toast.error(`Error: ${err?.response?.data?.message}`, {
+                toast.error(`${err?.response?.data?.message}`, {
                     position: "bottom-right",
                     autoClose: 2000,
                 });
@@ -55,7 +54,8 @@ function Teacher() {
     const getAllTeachers = async () => {
         setTeachersLoading(true)
         const token = await window.electronAPI.getUserData();
-        await axios.get(`${conf.backendUrl}teacher/get-all-teachers`, {
+        const id = token?.admin._id
+        await axios.post(`${conf.backendUrl}teacher/get-all-teachers`, { id }, {
             headers: {
                 Authorization: `Bearer ${token?.token}`
             }
@@ -65,10 +65,11 @@ function Teacher() {
             setTeachersLoading(false);
         }).catch((err) => {
             setTeacherData([])
-            toast.error(`Error: ${err?.response?.data?.message}`, {
+            toast.warning(`${err?.response?.data?.message || "Network issue please reload"}`, {
                 position: "bottom-right",
                 autoClose: 2000,
             });
+            // alert(err?.response?.data?.message || "Network Issue please reload")
             setTeachersLoading(false);
         })
     }

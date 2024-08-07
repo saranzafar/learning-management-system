@@ -3,8 +3,8 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import { Subject } from "../models/subject.model.js";
 
 const addSubject = asyncHandler(async (req, res) => {
-    const { name, teacher, grade } = req.body;
-    if (!name || !teacher || !grade) {
+    const { name, teacher, grade, user } = req.body;
+    if (!name || !teacher || !grade || !user) {
         return res.status(400).json(new ApiResponse(400, "Please provide all required fields"));
     }
 
@@ -19,7 +19,8 @@ const addSubject = asyncHandler(async (req, res) => {
     const subject = new Subject({
         name,
         teacher,
-        grade
+        grade,
+        user
     });
 
     await subject.save();
@@ -28,7 +29,9 @@ const addSubject = asyncHandler(async (req, res) => {
 });
 
 const getAllSubjects = asyncHandler(async (req, res) => {
-    const subjects = await Subject.find({}).populate('teacher', '-password');
+    const { id } = req.body
+
+    const subjects = await Subject.find({ user: id }).populate('teacher', '-password');
     if (!subjects || subjects.length === 0) {
         return res.status(404).json(new ApiResponse(404, "No subjects found"));
     }

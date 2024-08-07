@@ -1,6 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 
 const subjectSchema = new Schema({
+    user: {
+        type: mongoose.Types.ObjectId,
+        ref: "Admin",
+    },
     name: {
         type: String,
         required: true,

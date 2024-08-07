@@ -18,7 +18,15 @@ const adminSchema = new Schema({
     password: {
         type: String,
         required: [true, "Password is required"],
-    }
+    },
+    location: {
+        type: String,
+        require: true
+    },
+    logo: {
+        type: String,
+        require: true
+    },
 }, { timestamps: true });
 
 // Hash the password before saving the document
