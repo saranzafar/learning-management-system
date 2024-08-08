@@ -26,6 +26,12 @@ function Subject() {
         setFormData({ ...formData, [field]: value });
     };
 
+    const setFormDataBlank = () => {
+        setFormData({
+            name: '', teacher: '', grade: '',
+        })
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setButtonLoading(true);
@@ -45,6 +51,7 @@ function Subject() {
                     autoClose: 2000,
                 });
                 setButtonLoading(false);
+                setFormDataBlank()
             })
             .catch((err) => {
                 console.log("ERROR:", err?.response);

@@ -23,6 +23,18 @@ function Teacher() {
         setPasswordVisible(!passwordVisible);
     };
 
+    const setFormDataBlank = () => {
+        setFormData({
+            name: '',
+            email: '',
+            password: '',
+            gender: '',
+            address: '',
+            phoneNumber: '',
+            user: ''
+        })
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setButtonLoading(true);
@@ -41,6 +53,7 @@ function Teacher() {
                     autoClose: 2000,
                 });
                 setButtonLoading(false);
+                setFormDataBlank()
             })
             .catch((err) => {
                 toast.error(`${err?.response?.data?.message}`, {

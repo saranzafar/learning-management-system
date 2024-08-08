@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { CircleUserRoundIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import conf from "../../conf/conf"
@@ -76,9 +75,19 @@ function Subject() {
         });
     };
 
+
+    const setFormDataBlank = () => {
+        setFormData({
+            grade: '',
+            subject: '',
+            teacher: '',
+            startTime: '08:00 AM',
+            endTime: '09:00 AM',
+        })
+    }
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (formData.startTime >= formData.endTime) {
             alert('Start time must be before end time');
             return;
@@ -95,6 +104,7 @@ function Subject() {
                     },
                 })
             alert("Timetable added Successfully")
+            setFormDataBlank()
         } catch (error) {
             console.error(error);
             alert(error?.response?.data?.message || "Error while adding Timetable");

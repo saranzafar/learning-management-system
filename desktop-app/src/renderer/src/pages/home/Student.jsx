@@ -99,14 +99,19 @@ function Student() {
                 },
             })
             .then((response) => {
-                alert(response.data.message)
+                toast.success(`${response?.data?.message} `, {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                });
                 setStudentFormButtonLoading(false);
                 setFormdataBlank()
             })
             .catch((err) => {
-                console.log();
-
-                alert(err?.response.data.message || "Check Network and reload")
+                console.log(err);
+                toast.warning(`${err?.response?.data?.message} ` || "Check Network an reload", {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                });
                 setStudentFormButtonLoading(false);
             });
         return
